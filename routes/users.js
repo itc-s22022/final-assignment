@@ -82,7 +82,7 @@ router.post("/register", [
         return res.status(400).json({ message: "username is already registered" });
       default:
         console.error(e);
-        return res.status(500).json({ message: "unknown error" });
+        return res.status(500).json({ message: "unknown ERROR" });
     }
   }
 });
