@@ -10,6 +10,9 @@ const cors = require('cors');
 const indexRouter = require('./routes/index');
 const usersRouter = require('./routes/users');
 const { authConfig } = require("./util/auth");
+const booksRouter = require('./routes/books');
+const adminRouter = require('./routes/admin');
+
 // const { authConfig } = require('./authConfig'); // authConfigをインポートする
 
 const app = express();
@@ -41,7 +44,8 @@ BigInt.prototype.toJSON = function () {
 
 app.use("/", indexRouter);
 app.use("/users", usersRouter);
-
+// app.use("/books", booksRouter);
+app.use("/admin", adminRouter);
 // 404
 app.use((req, res, next) => {
   res.status(404).json({message: "not found."});

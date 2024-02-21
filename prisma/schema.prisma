@@ -19,7 +19,7 @@ model users {
 
 model books {
   id          BigInt   @id @default(autoincrement())
-  isbn13      Int
+  isbn13      Int      @unique
   title       String?  @db.VarChar(200)
   author      String?  @db.VarChar(100)
   publishDate DateTime @db.Date
