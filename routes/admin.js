@@ -130,4 +130,81 @@ router.get('/rental/current', isAdmin , async (req, res) => {
 });
 
 
+
+// 特定ユーザの貸出中書籍一覧を取得するエンドポイント
+router.get('/rental/current/:uid', isAdmin, async (req, res) => {
+    try {
+        const userId = parseInt(req.params.uid);
+
+        // 特定ユーザが現在借りている書籍一覧を取得するクエリ
+        const rentalBooks = await prisma.rental.findMany({
+            where: {
+                userId: userId,
+                returnDate: null
+            },
+            select: {
+                id: true,
+                bookId: true,
+                rentalDate: true,
+                returnDeadline: true
+            }
+        });
+
+        // 書籍情報を取得するクエリ
+        const bookIds = rentalBooks.map(rental => rental.bookId);
+        const books = await prisma.books.findMany({
+            where: {
+                id: {
+                    in: bookIds
+                }
+            },
+            select: {
+                id: true,
+                title: true
+            }
+        });
+
+        // 特定ユーザの情報を取得するクエリ
+        const user = await prisma.users.findUnique({
+            where: {
+                id: userId
+            },
+            select: {
+                id: true,
+                name: true
+            }
+        });
+
+        if (!user) {
+            return res.status(404).json({ message: '指定されたユーザが見つかりません' });
+        }
+
+        // レスポンスを返す
+        res.status(200).json({
+            userId: user.id,
+            userName: user.name,
+            rentalBooks: rentalBooks.map(rental => {
+                const book = books.find(book => book.id === rental.bookId);
+                return {
+                    rentalId: rental.id,
+                    bookId: rental.bookId,
+                    bookName: book ? book.title : 'Unknown', // 書籍が見つからない場合は'Unknown'を表示
+                    rentalDate: rental.rentalDate,
+                    returnDeadline: rental.returnDeadline
+                };
+            })
+        });
+    } catch (error) {
+        console.error('Error fetching current rental books:', error);
+        res.status(500).json({ message: '貸出中書籍の取得中にエラーが発生しました' });
+    }
+});
+
+
+
+
+
+
+
+
 module.exports = router;
