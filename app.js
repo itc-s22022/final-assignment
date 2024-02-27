@@ -12,6 +12,7 @@ const usersRouter = require('./routes/users');
 const { authConfig } = require("./util/auth");
 const rentalRouter = require('./routes/rental');
 const adminRouter = require('./routes/admin');
+const booksRouter = require('./routes/books');
 
 // const { authConfig } = require('./authConfig'); // authConfigをインポートする
 
@@ -44,9 +45,9 @@ BigInt.prototype.toJSON = function () {
 
 app.use("/", indexRouter);
 app.use("/users", usersRouter);
-// app.use("/books", booksRouter);
 app.use("/admin", adminRouter);
 app.use("/rental",rentalRouter);
+app.use("/book", booksRouter);
 // 404
 app.use((req, res, next) => {
   res.status(404).json({message: "not found."});
