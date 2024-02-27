@@ -140,6 +140,45 @@ router.get('/current', loginCheck, async (req, res) => {
 });
 
 
+router.get('/history', loginCheck, async (req, res) => {
+    try {
+        const userId = req.user.id;
+
+        // ログインユーザの借用書籍履歴を取得
+        const rentalHistory = await prisma.rental.findMany({
+            where: {
+                userId: userId,
+                returnDate: {
+                    not: null
+                }
+            },
+            include: {
+                books: {
+                    select: {
+                        id: true,
+                        title: true
+                    }
+                }
+            }
+        });
+
+        // 借用書籍履歴の形式に整形
+        const formattedRentalHistory = rentalHistory.map(rental => ({
+            rentalId: rental.id,
+            bookId: rental.books.id,
+            bookName: rental.books.title,
+            rentalDate: rental.rentalDate, // ここでrentalDateを取得
+            returnDate: rental.returnDate // ここでreturnDateを取得
+        }));
+
+        // レスポンスを返す
+        res.status(200).json({ rentalHistory: formattedRentalHistory });
+    } catch (error) {
+        console.error("Error fetching rental history:", error);
+        res.status(500).json({ message: "借用書籍の履歴の取得中にエラーが発生しました" });
+    }
+});
+
 
 
 module.exports = router;
